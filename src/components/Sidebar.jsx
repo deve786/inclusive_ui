@@ -2,6 +2,7 @@ import React from 'react'
 import { BsInfoSquare } from 'react-icons/bs'
 import { CiFolderOn, CiUser } from 'react-icons/ci'
 import { IoSettings } from 'react-icons/io5'
+import { MdOutlineInsertChart } from 'react-icons/md'
 import { Link, useLocation } from 'react-router-dom'
 
 function Sidebar() {
@@ -17,7 +18,8 @@ function Sidebar() {
                 <div className='mt-3 flex flex-col gap-1'>
                     {/* Dashboard Link */}
                     <Link to={'/'} className={`flex gap-2 cursor-pointer p-3 rounded-md ${isActive('/') ? 'bg-[#707FDD] text-primaryColor bg-opacity-10' : 'text-secondaryColor hover:bg-[#707FDD] hover:bg-opacity-10 hover:text-primaryColor'}`}>
-                        <img src="/chart.svg" alt="" />
+                    <MdOutlineInsertChart />
+
                         <span className="text-sm">Dashboard</span>
                     </Link>
                     {/* All Link */}
@@ -28,15 +30,18 @@ function Sidebar() {
                     </Link>
                     {/* BU 1, 2, 3 Links */}
                     <p className='flex gap-2 text-secondaryColor cursor-pointer  hover:bg-[#707FDD] hover:bg-opacity-10 p-3 rounded-md hover:text-primaryColor'>
-                        <img src="/document.svg" alt="" />
+                    <MdOutlineInsertChart />
+
                         <span className="text-sm">BU 1</span>
                     </p>
                     <p className='flex gap-2 text-secondaryColor cursor-pointer hover:text-primaryColor hover:bg-[#707FDD] hover:bg-opacity-10 p-3 rounded-md'>
-                        <img src="/document.svg" alt="" />
+                    <MdOutlineInsertChart />
+
                         <span className="text-sm">BU 2</span>
                     </p>
                     <p className='flex gap-2 text-secondaryColor cursor-pointer hover:text-primaryColor hover:bg-[#707FDD] hover:bg-opacity-10 p-3 rounded-md'>
-                        <img src="/document.svg" alt="" />
+                    <MdOutlineInsertChart />
+
                         <span className="text-sm">BU 3</span>
                     </p>
                 </div>
