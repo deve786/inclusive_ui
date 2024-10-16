@@ -1,30 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFilePdf, FaFileExcel, FaFileImage, FaFileWord, FaFileAlt, FaFilePowerpoint } from 'react-icons/fa';
+import { FaFilePdf, FaFileExcel, FaFileWord, FaFileAlt, FaFilePowerpoint, FaList, FaThLarge } from 'react-icons/fa';
+import { PiEyeBold } from 'react-icons/pi';
+import { BASE_URL } from '../Constants';
+import axios from 'axios';
+import moment from 'moment';
 
 function All() {
+    const [viewMode, setViewMode] = useState("grid");
+    const [documents, setDocuments] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const handleProductClick = (id) => {
-        navigate(`/product/${id}`);
+    console.log(documents);
+
+    useEffect(() => {
+        fetchDocuments();
+    }, []);
+
+    const fetchDocuments = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/Document`);
+            setDocuments(response.data);
+        } catch (err) {
+            console.log('Something went wrong, please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const documentList = [
-        { id: 1, filename: "Project_Plan.pdf", size: "2 MB", type: "PDF", date: "2024-10-10" },
-        { id: 2, filename: "Financial_Report.xlsx", size: "3 MB", type: "Excel", date: "2024-09-15" },
-      
-        { id: 3, filename: "User_Guide.docx", size: "1 MB", type: "Word", date: "2024-08-23" },
-        { id: 4, filename: "Meeting_Notes.txt", size: "500 KB", type: "Text", date: "2024-07-19" },
-        { id: 5, filename: "Sales_Presentation.docx", size: "4 MB", type: "Word", date: "2024-06-30" },
-    ];
+    const handleProductClick = (id) => {
+        navigate(`/document/${id}`);
+    };
 
-    // Function to get the appropriate icon based on file type
+    const handleGrid = () => {
+        setViewMode("grid");
+    };
+
+    const handleCard = () => {
+        setViewMode("card");
+    };
+
     const getIcon = (type) => {
         switch (type) {
             case "PDF":
                 return <FaFilePdf className="text-red-600" />;
             case "Excel":
                 return <FaFileExcel className="text-green-600" />;
-            
             case "Word":
                 return <FaFileWord className="text-blue-500" />;
             case "Text":
@@ -36,45 +57,89 @@ function All() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-[80vh]">
+                <img src="./loading.svg" />
+
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-5">
-            <div className="w-full overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-500 border rounded-md">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                            <th scope="col" className="px-6 py-3 text-primaryColor">
-                                Document Name
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-primaryColor">
-                                Size
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-primaryColor">
-                                Type
-                            </th>
-                            <th scope="col" className="px-6 py-3 text-primaryColor">
-                                Date
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {documentList.map((document, index) => (
-                            <tr 
-                                onClick={() => handleProductClick(document.id)} 
-                                key={index} 
-                                className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100 cursor-pointer"
-                            >
-                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center">
-                                    {getIcon(document.type)}
-                                    <span className="ml-2">{document.filename}</span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">{document.size}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{document.type}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{document.date}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className='flex justify-between '>
+                <h2 className='font-bold text-3xl text-primaryColor'>Document Archive</h2>
+
+                <div className='flex gap-2 justify-end pe-2'>
+                    <button onClick={handleGrid} className={`rounded-md py-1 px-5 flex gap-1 ${viewMode === "grid" ? "bg-primaryColor text-white" : "bg-secondaryColor"} items-center`}>
+                        <FaList />Grid
+                    </button>
+                    <button onClick={handleCard} className={`rounded-md py-1 px-5 flex gap-1 ${viewMode === "card" ? "bg-primaryColor text-white" : "bg-secondaryColor"} items-center`}>
+                        <FaThLarge />Card
+                    </button>
+                </div>
             </div>
+
+            {
+                viewMode === 'grid' ?
+                    <div className="w-full overflow-x-auto">
+                        <table className="w-full text-sm text-left text-gray-500 border rounded-md">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Document Name</th>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Size</th>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Type</th>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Date</th>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Score</th>
+                                    <th scope="col" className="px-6 py-3 text-primaryColor">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {documents.map((document, index) => (
+                                    <tr
+                                        onClick={() => handleProductClick(document.id)}
+                                        key={index}
+                                        className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100 cursor-pointer"
+                                    >
+                                        <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center">
+                                            {getIcon(document.type)}
+                                            <span className="ml-2">{document.filename}</span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{document.size}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{document.type}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{moment(document.createdAt).format("MMM Do YYYY")}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{document.score}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <PiEyeBold className='cursor-pointer hover:text-gray-700' onClick={() => handleProductClick(document.id)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    :
+                    <div className='grid grid-cols-3 gap-5'>
+                        {documents.map((document, index) => (
+                            <div
+                                onClick={() => handleProductClick(document.id)}
+                                key={index}
+                                className="block max-w-sm p-6 cursor-pointer bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-200 transition-all"
+                            >
+                                <div className='flex justify-between items-center'>
+                                    <p className='text-2xl font-bold'>{getIcon(document.type)}</p>
+                                    <h2 className='text-3xl font-bold text-primaryColor'>8.2</h2>
+                                </div>
+                                <div className='flex justify-between items-end gap-5'>
+                                    <h5 className="text-2xl font-bold text-primaryColor">{document.filename}</h5>
+                                </div>
+                                <p className="font-normal text-gray-700 dark:text-gray-400">Size: {document.size}</p>
+                                <p className="font-normal text-gray-700 dark:text-gray-400">Type: {document.type}</p>
+                                <p className="font-normal text-gray-700 dark:text-gray-400">Date: {document.date}</p>
+                            </div>
+                        ))}
+                    </div>
+            }
         </div>
     );
 }

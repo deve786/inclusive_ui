@@ -1,77 +1,75 @@
-import React, { useEffect, useState } from 'react';
-import { FaBell } from "react-icons/fa";
+import React, { useContext, useState } from 'react';
+import { FaBell, FaChevronDown } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
+import AppContext from '../AppContext';
 
 function Navbar() {
     const navigate = useNavigate();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isLoggedOut, setIsLoggedOut] = useState(true);
-    const [username, setUsername] = useState("")
+    const authCtx = useContext(AppContext);
+
+    const isLoggedIn = authCtx.isLoggedIn;
+    const username = isLoggedIn ? "User" : "Guest";
+
     const handleLogout = () => {
-        setIsDropdownOpen(false)
-        if (localStorage.getItem("userId")) {
-            localStorage.removeItem("userId");
-            localStorage.removeItem("username");
-            setIsLoggedOut(true);
-            navigate('/login');
-        }
+        authCtx.logout();
+        setIsDropdownOpen(false);
+        navigate('/');
     };
 
-    const handleLogin=()=>{
-        setIsLoggedOut(false)
-        setIsDropdownOpen(false)
-        navigate('/login');
-    }
-    useEffect(() => {
-        if (localStorage.getItem('username')) {
-            const storedUsername = localStorage.getItem('username')
-            setUsername(storedUsername)
-        }
-    }, [])
+    const handleLogin = () => {
+        setIsDropdownOpen(false);
+        navigate('/');
+    };
 
+    const toggleDropdown = () => {
+        setIsDropdownOpen((prevState) => !prevState);
+    };
 
     return (
-        <div className='flex flex-row justify-between border-b-[1px]'>
-            <div className='bg-[#F1F2F7] w-[15%] flex justify-center items-center '>
+        <div className='flex flex-row justify-between border-b-[1px] bg-white shadow-sm'>
+            <div className='bg-[#F1F2F7] w-[15%] flex justify-center items-center py-4'>
                 <Link to={'/'} className='text-primaryColor font-bold'>INCLUSIONE</Link>
             </div>
 
             <div className='w-[85%] p-4 px-10 flex items-center gap-5 justify-end'>
                 <div className='relative'>
-
-                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className='flex items-center gap-2'>
+                    <button 
+                        onClick={toggleDropdown} 
+                        className='flex items-center gap-2  px-4 py-2 rounded-md transition duration-300'
+                    >
                         <img src="/img.jpeg" alt="User Avatar" className='w-8 h-8 rounded-full' />
-                        <p>{username ? username : "User"}</p>
+                        <span>{username}</span>
+                        <FaChevronDown className={`ml-2 transition-transform duration-300 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
                     </button>
 
-
                     {isDropdownOpen && (
-                        !isLoggedOut ?
-                            <div className='absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg'>
-                                <button
-                                    onClick={handleLogout}
-                                    className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-200'>
-                                    Logout
-                                </button>
-                            </div>
-                            :
-                            <div className='absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg'>
-                               
+                        <div className="absolute right-0 mt-2 py-2 w-48 bg-white border rounded-md shadow-lg z-10">
+                            {isLoggedIn ? (
+                                <>
                                     <button
-                                        onClick={handleLogin}
-                                        className='block w-full text-left px-4 py-2 text-sm hover:bg-gray-200'>
-                                        Login
+                                        onClick={handleLogout}
+                                        className='block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100'>
+                                        Logout
                                     </button>
-                                
-                            </div>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={handleLogin}
+                                    className='block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100'>
+                                    Login
+                                </button>
+                            )}
+                        </div>
                     )}
-
                 </div>
 
-                <div className="relative">
-                    <FaBell className="text-gray-400 cursor-pointer" />
-                    <span className="absolute top-0 right-0 block w-1.5 h-1.5 bg-red-600 rounded-full ring-2 ring-white"></span>
-                </div>
+                {isLoggedIn && (
+                    <div className="relative">
+                        <FaBell className="text-gray-400 cursor-pointer text-xl" />
+                        <span className="absolute top-0 right-0 block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For navigation after successful login
+import { BASE_URL } from '../Constants';
+import AppContext from '../AppContext';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate(); // Using react-router for navigation
+    const navigate = useNavigate();
+    const authCtx = useContext(AppContext)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const response = await fetch('https://localhost:7199/api/auth/login', {
+            const response = await fetch(`${BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -19,11 +22,12 @@ function Login() {
                 body: JSON.stringify({ email, password }),
             });
 
+
             if (response.ok) {
+
                 const result = await response.json();
-                localStorage.setItem('userId', result.user.id);
-                localStorage.setItem('username', result.user.username);
-                navigate('/');                
+                authCtx.login(result)
+                navigate('/');
             } else {
                 const result = await response.json();
                 setError(result.message || 'Login failed');
@@ -37,7 +41,7 @@ function Login() {
         <div className='flex items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-blue-100' >
             <div className='bg-white shadow-lg rounded-lg p-8 w-96'>
                 <h2 className='text-3xl font-bold mb-6 text-center text-gray-700'>Welcome Back!</h2>
-                
+
                 <form onSubmit={handleSubmit}>
                     <div className='mb-4'>
                         <label className='block text-sm font-medium text-gray-700'>Email</label>
