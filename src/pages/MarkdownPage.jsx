@@ -25,7 +25,7 @@ const DocumentViewer = ({ content, documentDetails }) => {
     }
 };
   return (
-    <div className="flex flex-col gap-8 ">
+    <div className="flex flex-col gap-4 ">
       <div className="flex justify-between items-center bg-white shadow-lg rounded-lg p-6 mb-6 border-b-4 border-primaryColor">
         <h1 className="text-4xl font-bold text-gray-800 flex gap-2">{getIcon(documentDetails.type)}{documentDetails.name}</h1>
         <div className="text-4xl text-emerald-500 font-semibold">
@@ -75,7 +75,7 @@ const MarkdownPage = () => {
   const sampleMarkdown = `### Inclusion Analysis\n\n- **Non-Inclusive Words**: guys, crazy\n  - Found in context: Hello **guys**, welcome to the event.\n  - Found in context: This is a **crazy** idea.\n`;
 
   const sampleDocumentDetails = {
-    name: document.filename,
+    name: document.fileName,
     score: document.score,
     size: document.size,
     type: document.type,
@@ -85,7 +85,7 @@ const MarkdownPage = () => {
 
   return (
     <div className='flex flex-col gap-8   min-h-screen'>
-      <h2 className='font-bold text-3xl text-primaryColor flex gap-3 items-center'>Document Insight</h2>
+     
       <DocumentViewer content={sampleMarkdown} documentDetails={sampleDocumentDetails} />
     </div>
   );

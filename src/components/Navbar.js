@@ -38,7 +38,7 @@ function Navbar() {
                         onClick={toggleDropdown} 
                         className='flex items-center gap-2  px-4 py-2 rounded-md transition duration-300'
                     >
-                        <img src="/img.jpeg" alt="User Avatar" className='w-8 h-8 rounded-full' />
+                        <img src="/user.png" alt="User Avatar" className='w-8 h-8 rounded-full' />
                         <span>{username}</span>
                         <FaChevronDown className={`ml-2 transition-transform duration-300 ${isDropdownOpen ? 'transform rotate-180' : ''}`} />
                     </button>
@@ -64,12 +64,12 @@ function Navbar() {
                     )}
                 </div>
 
-                {isLoggedIn && (
+                {/* {isLoggedIn && (
                     <div className="relative">
                         <FaBell className="text-gray-400 cursor-pointer text-xl" />
                         <span className="absolute top-0 right-0 block w-2 h-2 bg-red-600 rounded-full ring-2 ring-white"></span>
                     </div>
-                )}
+                )} */}
             </div>
         </div>
     );

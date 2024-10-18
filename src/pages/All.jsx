@@ -69,14 +69,14 @@ function All() {
     return (
         <div className="flex flex-col gap-5">
             <div className='flex justify-between '>
-                <h2 className='font-bold text-3xl text-primaryColor'>Document Archive</h2>
+                <h2 className='font-bold text-3xl text-primaryColor'>Document List</h2>
 
                 <div className='flex gap-2 justify-end pe-2'>
                     <button onClick={handleGrid} className={`rounded-md py-1 px-5 flex gap-1 ${viewMode === "grid" ? "bg-primaryColor text-white" : "bg-secondaryColor"} items-center`}>
-                        <FaList />Grid
+                        <FaList />
                     </button>
                     <button onClick={handleCard} className={`rounded-md py-1 px-5 flex gap-1 ${viewMode === "card" ? "bg-primaryColor text-white" : "bg-secondaryColor"} items-center`}>
-                        <FaThLarge />Card
+                        <FaThLarge />
                     </button>
                 </div>
             </div>
@@ -104,14 +104,15 @@ function All() {
                                     >
                                         <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap flex items-center">
                                             {getIcon(document.type)}
-                                            <span className="ml-2">{document.filename}</span>
+                                            <span className="ml-2">{document.fileName}</span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{document.size}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{document.fileSize}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{document.type}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{moment(document.createdAt).format("MMM Do YYYY")}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{moment(document.creationDate).format("MMM Do YYYY")}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">{document.score}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <PiEyeBold className='cursor-pointer hover:text-gray-700' onClick={() => handleProductClick(document.id)} />
+                                            <button className='py-1 px-4 rounded-sm bg-primaryColor text-white hover:bg-primaryColor hover:opacity-80'>View</button>
+                                            {/* <PiEyeBold className='cursor-pointer hover:text-gray-700' onClick={() => handleProductClick(document.id)} /> */}
                                         </td>
                                     </tr>
                                 ))}
