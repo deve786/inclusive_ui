@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // For navigation after successful login
+import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../Constants';
 import AppContext from '../AppContext';
 
@@ -7,11 +7,14 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const authCtx = useContext(AppContext)
+    const authCtx = useContext(AppContext);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
         try {
             const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -22,11 +25,11 @@ function Login() {
                 body: JSON.stringify({ email, password }),
             });
 
-
             if (response.ok) {
-
                 const result = await response.json();
-                authCtx.login(result)
+                console.log(result);
+                
+                authCtx.login(result);
                 navigate('/');
             } else {
                 const result = await response.json();
@@ -34,11 +37,13 @@ function Login() {
             }
         } catch (err) {
             setError('Something went wrong, please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div className='flex items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-blue-100' >
+        <div className='flex items-center justify-center h-screen bg-gradient-to-r from-blue-100 to-blue-100'>
             <div className='bg-white shadow-lg rounded-lg p-8 w-96'>
                 <h2 className='text-3xl font-bold mb-6 text-center text-gray-700'>Welcome Back!</h2>
 
@@ -65,9 +70,12 @@ function Login() {
                     </div>
                     <button
                         type='submit'
-                        className='w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-150 ease-in-out'
+                        className={`w-full p-3 rounded-md transition duration-150 ease-in-out ${
+                            loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                        disabled={loading}
                     >
-                        Login
+                        {loading ? 'Loading...' : 'Login'}
                     </button>
                 </form>
                 {error && <p className='text-red-500 text-sm mb-4 mt-5'>{error}</p>}

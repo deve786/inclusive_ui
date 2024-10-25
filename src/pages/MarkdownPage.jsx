@@ -5,50 +5,60 @@ import { useParams } from 'react-router-dom';
 import { BASE_URL } from '../Constants';
 import { FaFileAlt, FaFileExcel, FaFilePdf, FaFilePowerpoint, FaFileWord } from 'react-icons/fa';
 import moment from 'moment';
-import { BiLeftArrowCircle } from 'react-icons/bi';
 
 const DocumentViewer = ({ content, documentDetails }) => {
   const getIcon = (type) => {
     switch (type) {
-        case "PDF":
-            return <FaFilePdf className="text-red-600" />;
-        case "Excel":
-            return <FaFileExcel className="text-green-600" />;
-        case "Word":
-            return <FaFileWord className="text-blue-500" />;
-        case "Text":
-            return <FaFileAlt className="text-gray-600" />;
-        case "PowerPoint":
-            return <FaFilePowerpoint className="text-orange-500" />;
-        default:
-            return null;
+      case "pdf":
+        return <FaFilePdf className="text-red-600" />;
+      case "Excel":
+        return <FaFileExcel className="text-green-600" />;
+      case "Word":
+        return <FaFileWord className="text-blue-500" />;
+      case "txt":
+        return <FaFileAlt className="text-gray-600" />;
+      case "PowerPoint":
+        return <FaFilePowerpoint className="text-orange-500" />;
+      default:
+        return null;
     }
-};
+  };
+
   return (
-    <div className="flex flex-col gap-4 ">
-      <div className="flex justify-between items-center bg-white shadow-lg rounded-lg p-6 mb-6 border-b-4 border-primaryColor">
-        <h1 className="text-4xl font-bold text-gray-800 flex gap-2">{getIcon(documentDetails.type)}{documentDetails.name}</h1>
-        <div className="text-4xl text-emerald-500 font-semibold">
+    <div className="flex flex-col gap-2 flex-grow">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white shadow-lg rounded-lg p-6 mb-6 border-b-4 border-primaryColor">
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-800 flex gap-2 mb-4 md:mb-0">
+          {getIcon(documentDetails.type)} {documentDetails.fileName}
+        </h1>
+        <div className="text-2xl md:text-4xl text-emerald-500 font-semibold">
           Score: {documentDetails.score}
         </div>
       </div>
 
-      <div className='flex gap-5'>
-
-        <div className="flex-1 bg-white shadow-lg rounded-lg overflow-hidden p-6 w-full md:w-[70%]">
-          <Markdown className="prose max-w-none">
-            {content}
-          </Markdown>
+      {/* Main Content and Document Info */}
+      <div className="flex flex-col md:flex-row gap-5">
+        {/* Markdown Content */}
+        <div className="bg-white shadow-lg rounded-lg overflow-hidden p-6 w-full md:w-[80%]">
+          <Markdown className="prose max-w-none">{content || "Analyzing..."}</Markdown>
         </div>
 
-
+        {/* Document Info */}
         <div className="bg-white shadow-lg rounded-lg p-6 w-full md:w-[30%]">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">Document Information</h3>
           <ul className="space-y-3">
-            <li><strong>Size:</strong> {documentDetails.size}</li>
-            <li><strong>Type:</strong> {documentDetails.type}</li>
-            <li><strong>Created:</strong> {moment(documentDetails.created).format("MMM Do YYYY")}</li>
-            
+            <li><strong>Size:</strong> {documentDetails.fileSize} KB</li>
+            <li><strong>Type:</strong> <span className='uppercase'>{documentDetails.type || 'N/A'}</span></li>
+            <li><strong>Created:</strong> {moment(documentDetails.uploadedAt).format("DD-MMM-YYYY")}</li>
+            <li className='flex gap-1'>
+              <strong>Current Directory:</strong>
+              <span className="block text-gray-600">{documentDetails.rootDirectory || 'N/A'}</span>
+            </li>
+            <li className='flex gap-1'>
+              <strong>Status:</strong>
+              <span className={`block font-semibold ${documentDetails.status === 'Pending' ? 'text-yellow-500' : documentDetails.status === 'Approved' ? "text-green-600" : 'text-red-600'}`}>
+                {documentDetails.status || 'N/A'}
+              </span>
+            </li>
           </ul>
         </div>
       </div>
@@ -57,36 +67,38 @@ const DocumentViewer = ({ content, documentDetails }) => {
 };
 
 const MarkdownPage = () => {
+  const [document, setDocument] = useState({});
+  const [markdown, setMarkdown] = useState('');
+  const [loading, setLoading] = useState(true); // Loading state
+  const { id } = useParams();
 
-  const [document, setDocument] = useState([])
-  const { id } = useParams()
   useEffect(() => {
-    fetchDocument()
-  }, [])
+    fetchDocument();
+  }, [id]);
 
-  const fetchDocument=async()=>{
-    const response=await axios.get(`${BASE_URL}/document/${id}`)
-    console.log(response.data);
-    setDocument(response.data)
-    
-    
-  }
-
-  const sampleMarkdown = `### Inclusion Analysis\n\n- **Non-Inclusive Words**: guys, crazy\n  - Found in context: Hello **guys**, welcome to the event.\n  - Found in context: This is a **crazy** idea.\n`;
-
-  const sampleDocumentDetails = {
-    name: document.fileName,
-    score: document.score,
-    size: document.size,
-    type: document.type,
-    created: "12-OCT-2024",
-    
+  const fetchDocument = async () => {
+    setLoading(true); // Set loading to true when fetching starts
+    try {
+      const response = await axios.get(`${BASE_URL}/Document/single/${id}`);
+      setDocument(response.data);
+      setMarkdown(response.data.markdownReport || ''); // Set as empty string if undefined
+    } catch (error) {
+      console.error("Error fetching document:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
+    }
   };
 
   return (
-    <div className='flex flex-col gap-8   min-h-screen'>
-     
-      <DocumentViewer content={sampleMarkdown} documentDetails={sampleDocumentDetails} />
+    <div className="flex flex-col gap-8 min-h-screen p-4 md:p-8 bg-gray-50">
+      {loading ? ( // Show loading indicator if loading
+        <div className="flex justify-center items-center h-[80vh]">
+        <img src="./loading.svg" />
+
+    </div>
+      ) : (
+        <DocumentViewer content={markdown} documentDetails={document} />
+      )}
     </div>
   );
 };
